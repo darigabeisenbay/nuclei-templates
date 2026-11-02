@@ -1,0 +1,20 @@
+name: Template Validate
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Install nuclei
+        run: go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+      - name: Validate templates
+        run: |
+          mkdir -p $HOME/nuclei-templates
+          cp -r . $HOME/nuclei-templates
+          $(go env GOPATH)/bin/nuclei -duc -validate -t $HOME/nuclei-templates/http/cves/2024 -allow-local-file-access
